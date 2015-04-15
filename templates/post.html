@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+ 
+
+{% block page_content %}
+<div class="page-header">
+  <h1>{{post.title}}</h1>
+  <p>{{post.published}} </p>
+</div>
+<div>
+  <p> {{post}} </p>
+</div>
+<div>
+  <ul class="pager">
+    {% if pre_page %}
+	<li class="previous"><a href="{{url_for('show_post', name = pre_page.path.replace('posts/', ''))}}">
+	 <- {{pre_page.title}}
+	</a></li>
+    {% endif %}
+
+    {% if next_page %}
+	<li class="next"><a href="{{url_for('show_post', name = next_page.path.replace('posts/',''))}}">
+	  {{next_page.title}}->
+	</a></li>
+    {% endif %}
+  </ul>
+</div>
+{% endblock %}

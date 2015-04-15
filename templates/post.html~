@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+ 
+
+{% block page_content %}
+<div class="page-header">
+  <h1>{{post.title}}</h1>
+</div>
+<div>
+  <p> {{post}} </p>
+  <p>{{post.published}} </p>
+</div>
+<div>
+  <div class = "row">
+    <div class="col-md-6">
+    {% if pre_page %}
+	<a href="{{url_for('show_post', name = pre_page.path.replace('posts/', ''))}}" class="btn btn-primary">
+	  Previous
+	</a>
+    {% endif %}
+    </div>
+    <div class="col-md-6">
+    {% if next_page %}
+	<a href="{{url_for('show_post', name = next_page.path.replace('posts/',''))}}" class="btn btn-primary">
+	  Next
+	</a>
+    {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
