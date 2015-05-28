@@ -32,7 +32,7 @@ subs = db.Table('subs',
 class Organisation(db.Model):
 	__tablename__ = 'organisations'
 	id = db.Column(db.Integer, primary_key = True)
-	name = db.Column(db.String(80), unique = True)
+	name = db.Column(db.String(80))
 	town_id = db.Column(db.Integer, db.ForeignKey('towns.id'))
 	sub_tiers = db.relationship('SubTier', secondary = subs, 
 		backref=db.backref('organisations',lazy='dynamic'))
