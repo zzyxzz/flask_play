@@ -24,12 +24,19 @@ db = SQLAlchemy(app)
 Define models according to the table in csv file 
 for import data from csv file or furthur database manipulations.
 """
+
+subs = db.Table('subs',
+	db.Column('org_id', db.Integer, db.ForeignKey('organisations.id')),
+	db.Column('sub_tier_id', db.Integer, db.ForeignKey('subtiers.id')))
+
 class Organisation(db.Model):
 	__tablename__ = 'organisations'
 	id = db.Column(db.Integer, primary_key = True)
 	name = db.Column(db.String(80), unique = True)
 	town_id = db.Column(db.Integer, db.ForeignKey('towns.id'))
-	sub_tier_id = db.Column(db.Integer, db.ForeignKey('subtiers.id'))
+	sub_tiers = db.relationship('SubTier', secondary = subs, 
+		backref=db.backref('organisations',lazy='dynamic'))
+	# sub_tier_id = db.Column(db.Integer, db.ForeignKey('subtiers.id'))
 
 	def __init__(self, name):
 		self.name = name
@@ -79,7 +86,7 @@ class SubTier(db.Model):
 	id = db.Column(db.Integer, primary_key = True)
 	name = db.Column(db.String(80), unique = True)
 	tier_id = db.Column(db.Integer, db.ForeignKey('tiers.id'))
-	organisations = db.relationship('Organisation', backref = 'subtier', lazy = 'dynamic')
+	# organisations = db.relationship('Organisation', backref = 'subtier', lazy = 'dynamic')
 
 	def __init__(self, name):
 		self.name = name
