@@ -12,11 +12,14 @@ with open('./content/data.csv', 'r') as data:
 	reader = csv.reader(data)
 	count = 1
 	for row in reader:
-		org_name = row[0]
-		town_name = row[1]
+		if not row[0]:
+			continue
+		org_name = row[0].rstrip()
+		town_name = row[1].rstrip()
 		county_name = 'NA'
-		tier_name = row[2]
-		sub_tier_name = row[3]
+		tier_names = row[2].rstrip().split('\n')
+		sub_tier_names = row[3].rstrip().split('\n')
+		tiers = zip(tier_names, sub_tier_names)
 
 		org = Organisation(org_name)
 		db.session.add(org)
@@ -38,25 +41,27 @@ with open('./content/data.csv', 'r') as data:
 			# add town to session
 			db.session.add(town)
 		# link town and organisation
-		town.organisation.append(org)
+		town.organisations.append(org)
 
-		# check whether sub_tier exists in subtiers table
-		sub_tier = SubTier.query.filter_by(name = sub_tier_name).first()
-		if not sub_tier:
-			# if not, create SubTier object 
-			sub_tier = SubTier(sub_tier_name)
-			tier = Tier,query.filter_by(name = tier_name).first()
-			if not tier:
-				# if not, create Tier object
-				tier = Tier(tier_name)
-				# add tier to session
-				db.session.add(tier)
-			# link tier and sub_tier
-			tier.sub_tiers.append(sub_tier)
-			# add sub_tier to session
-			db.session.add(sub_tier)
-		# link sub_tier and organisation
-		sub_tier.organisations.append(org)
+		for tier_name, sub_tier_name in tiers:
+			# check whether sub_tier exists in subtiers table
+			sub_tier = SubTier.query.filter_by(name = sub_tier_name).first()
+			if not sub_tier:
+				# if not, create SubTier object 
+				sub_tier = SubTier(sub_tier_name)
+				tier = Tier.query.filter_by(name = tier_name).first()
+				if not tier:
+					# if not, create Tier object
+					tier = Tier(tier_name)
+					# add tier to session
+					db.session.add(tier)
+				# link tier and sub_tier
+				tier.sub_tiers.append(sub_tier)
+				# add sub_tier to session
+				db.session.add(sub_tier)
+			# link sub_tier and organisation
+			sub_tier.organisations.append(org)
+			org.sub_tiers.append(sub_tier)
 
 		if count%10 == 0:
 			# db.session.flush()
@@ -67,7 +72,7 @@ with open('./content/data.csv', 'r') as data:
 	companies = Organisation.query.all()
 	for com in companies:
 		print "Com: {} Town: {} County: {} Tier: {} SubTier: {} \n".format(
-			com.name, com.town, com.town.county, com.subtier.tier, com.subtier)
+			com.name, com.town, com.town.county, [s.tier for s in com.sub_tiers], com.sub_tiers)
 
 
 
