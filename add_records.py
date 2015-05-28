@@ -12,9 +12,10 @@ with open('./content/data.csv', 'r') as data:
 	reader = csv.reader(data)
 	count = 1
 	for row in reader:
+		print count
 		if not row[0]:
 			continue
-		org_name = row[0].rstrip()
+		org_name = unicode(row[0].rstrip().decode('utf-8'))
 		town_name = row[1].rstrip()
 		county_name = 'NA'
 		tier_names = row[2].rstrip().split('\n')
@@ -62,17 +63,18 @@ with open('./content/data.csv', 'r') as data:
 			# link sub_tier and organisation
 			sub_tier.organisations.append(org)
 			org.sub_tiers.append(sub_tier)
-
-		if count%10 == 0:
-			# db.session.flush()
-			break
+		db.session.flush()
 		count += 1
 	db.session.commit()
+	print "All records committed."
 
-	companies = Organisation.query.all()
-	for com in companies:
-		print "Com: {} Town: {} County: {} Tier: {} SubTier: {} \n".format(
-			com.name, com.town, com.town.county, [s.tier for s in com.sub_tiers], com.sub_tiers)
+#============================
+#  Test the database by query
+#============================
+	# companies = Organisation.query.all()
+	# for com in companies:
+	# 	print "Com: {} Town: {} County: {} Tier: {} SubTier: {} \n".format(
+	# 		com.name, com.town, com.town.county, [s.tier for s in com.sub_tiers], com.sub_tiers)
 
 
 
