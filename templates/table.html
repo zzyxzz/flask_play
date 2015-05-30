@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% from "bootstrap/pagination.html" import render_pagination %}
+{% block title %} T2 | {{title}} {% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+<h1>Tier 2 Sponsorship List</h1>
+</div>
+
+<div>
+    {% for message in get_flashed_messages() %}
+    <div class="alert alert-warning">
+        <button type="button" class = "close" data-dismiss= "alert">&times;</button>
+        {{message}}
+    </div>
+    {% endfor %}
+    <p>Total number of organisations: {{ max_n }}
+</div>
+
+<div class="table-responsive">
+    <table class="table table=hover table-striped">
+        <thead>
+            <tr>
+            <th>Organisation</th>
+            <th>Town / City</th>
+            <th>County</th>
+            <th>Sub Tier</th>
+            <th>Tier &amp; Rating</th>
+            </tr>
+        </thead>
+        {% for org in sponsor_list.items %}
+        <tr>
+            <td>{{ org.name }}</td>
+            <td>{{ org.town.name }}</td>
+            <td>{{ org.town.county.name }}</td>
+            <td>
+                {% for sub in org.sub_tiers %}
+                {{ sub.name }} 
+                <br>
+                {% endfor %}
+            </td>
+            <td>
+                {% for sub in org.sub_tiers %}
+                {{ sub.tier.name }}
+                <br>
+                {% endfor %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<div>
+    <table>
+        <tr>
+            <td>
+                {{ render_pagination(sponsor_list) }}
+            </td>
+            <td>
+                <form method="POST">
+                    {{ goto.hidden_tag() }}
+                    <p> &nbsp; &nbsp; {{goto.num.label}} {{goto.num(id = 'go-to-field')}} {{goto.submit()}}</p>
+                </form>
+            </td>
+        </tr>
+    </table>
+</div>
+
+{% endblock %}
