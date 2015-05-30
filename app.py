@@ -1,12 +1,18 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, flash, redirect, url_for
 from flask.ext.bootstrap import Bootstrap
 from flask_flatpages import FlatPages, pygments_style_defs, pygmented_markdown
 from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.wtf import Form
+from wtforms import IntegerField, SubmitField
+from wtforms.validators import Required
 import os
 
 FLATPAGES_EXTENSION = ".md"
 FLATPAGES_ROOT = "content"
 POSTS_DIR = "posts"
+# for pagination
+TABLE_PER_PAGE = 10
+SECRET_KEY = "Never cracked"
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -119,6 +125,24 @@ def show_post(name):
 		next_page = post_list[p_index+1]
 	return render_template("post.html",post=post, pre_page=pre_page, next_page=next_page)
 
+@app.route("/sponsorship", methods = ['GET','POST'])
+@app.route("/sponsorship/<int:page>", methods = ['GET','POST'])
+def show_table(page = 1):
+	sponsor_list = Organisation.query.paginate(page, TABLE_PER_PAGE)
+	max_n = sponsor_list.total
+	pages = sponsor_list.pages
+	num = None
+	goto = numeric_form()
+	if goto.validate_on_submit():
+		num = goto.num.data
+		if 1 <= num and num <= pages:
+			goto.num.data = ''
+			return redirect(url_for('show_table', page = num))
+		else:
+			flash('Page number is out of range.')
+
+	return render_template("table.html", sponsor_list = sponsor_list, goto = goto, max_n = max_n, title = "Tier 2 List")
+
 @app.route("/about")
 def aboutme():
 	return render_template("about.html")
@@ -127,6 +151,12 @@ def aboutme():
 def pygments_css():
 	return pygments_style_defs("tango"), 200, {"Content-Type":"text/css"}
 
+class numeric_form(Form):
+	num = IntegerField('Go to', validators=[Required()])
+	submit = SubmitField('Go')
+
 #===========
 if __name__ == "__main__":
-	app.run(host="0.0.0.0")
+	host = '0.0.0.0'
+	debug = True
+	app.run(debug=True)
