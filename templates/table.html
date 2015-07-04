@@ -16,54 +16,77 @@
     {% endfor %}
     <p>Total number of organisations: {{ max_n }}
 </div>
+<ul class="nav nav-tabs">
+  <li class="active"><a data-toggle="tab" href="#table">Table</a></li>
+  <li><a data-toggle="tab" href="#graph">Graph</a></li>
+</ul>
 
-<div class="table-responsive">
-    <table class="table table=hover table-striped">
-        <thead>
-            <tr>
-            <th>Organisation</th>
-            <th>Town / City</th>
-            <th>County</th>
-            <th>Sub Tier</th>
-            <th>Tier &amp; Rating</th>
-            </tr>
-        </thead>
-        {% for org in sponsor_list.items %}
-        <tr>
-            <td>{{ org.name }}</td>
-            <td>{{ org.town.name }}</td>
-            <td>{{ org.town.county.name }}</td>
-            <td>
-                {% for sub in org.sub_tiers %}
-                {{ sub.name }} 
-                <br>
+<div class="tab-content">
+    <div id="table" class ="tab-pane fade in active">
+        <div class="table-responsive">
+            <table class="table table=hover table-striped">
+                <thead>
+                    <tr>
+                    <th>Organisation</th>
+                    <th>Town / City</th>
+                    <th>County</th>
+                    <th>Sub Tier</th>
+                    <th>Tier &amp; Rating</th>
+                    </tr>
+                </thead>
+                {% for org in sponsor_list.items %}
+                <tr>
+                    <td>{{ org.name }}</td>
+                    <td>{{ org.town.name }}</td>
+                    <td>{{ org.town.county.name }}</td>
+                    <td>
+                        {% for sub in org.sub_tiers %}
+                        {{ sub.name }} 
+                        <br>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for sub in org.sub_tiers %}
+                        {{ sub.tier.name }}
+                        <br>
+                        {% endfor %}
+                    </td>
+                </tr>
                 {% endfor %}
-            </td>
-            <td>
-                {% for sub in org.sub_tiers %}
-                {{ sub.tier.name }}
-                <br>
-                {% endfor %}
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
-</div>
+            </table>
+        </div>
 
-<div>
-    <table>
-        <tr>
-            <td>
-                {{ render_pagination(sponsor_list) }}
-            </td>
-            <td>
-                <form method="POST">
-                    {{ goto.hidden_tag() }}
-                    <p> &nbsp; &nbsp; {{goto.num.label}} {{goto.num(id = 'go-to-field')}} {{goto.submit()}}</p>
-                </form>
-            </td>
-        </tr>
-    </table>
+        <div>
+            <table>
+                <tr>
+                    <td>
+                        {{ render_pagination(sponsor_list) }}
+                    </td>
+                    <td>
+                        <form method="POST">
+                            {{ goto.hidden_tag() }}
+                            <p> &nbsp; &nbsp; {{goto.num.label}} {{goto.num(id = 'go-to-field')}} {{goto.submit()}}</p>
+                        </form>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    
+    
+    <div id="graph" class="tab-pane fade">
+        <h3>Organisations locations</h3>
+        <div id="chart"></div>
+        <script>
+            var chart = c3.generate({
+                data: {
+                    url: '{{url_for('static', filename='towns.json')}}',
+                    mimeType: 'json',
+                    type : 'pie'
+                }
+            });
+        </script>
+    </div>
 </div>
 
 {% endblock %}
